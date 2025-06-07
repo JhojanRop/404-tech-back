@@ -11,7 +11,7 @@ class UsersController < ApplicationController
   SECRET_KEY = Rails.application.credentials.secret_key_base || ENV['SECRET_KEY_BASE']
 
   before_action :authorize_request, except: [:login, :create]
-  before_action :authorize_admin, except: [:login, :create]
+  before_action :authorize_admin, except: [:login, :create, :show]
 
   rescue_from StandardError do |e|
     render json: { error: 'Internal server error' }, status: :internal_server_error
@@ -51,7 +51,7 @@ class UsersController < ApplicationController
         user_data = user_data.dup
         user_data.delete('password_hash')
         user_data.delete(:password_hash)
-        render json: { token: token, user: clean_user_data(user_data) }
+        render json: { token: token, user: clean_user_data(user_data).merge(id: doc.document_id) }
       else
         render json: { error: 'Invalid email or password' }, status: :unauthorized
       end

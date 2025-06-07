@@ -7,8 +7,13 @@ class OrdersController < ApplicationController
 
   # GET /orders
   def index
-    all_orders = ORDERS_COLLECTION.get.map { |doc| doc.data.merge(id: doc.document_id) }
-    render json: { orders: all_orders, total: all_orders.size }
+    if params[:user_id].present?
+      filtered_orders = ORDERS_COLLECTION.where(:userID, "==", params[:user_id]).get.map { |doc| doc.data.merge(id: doc.document_id) }
+      render json: { orders: filtered_orders, total: filtered_orders.size }
+    else
+      all_orders = ORDERS_COLLECTION.get.map { |doc| doc.data.merge(id: doc.document_id) }
+      render json: { orders: all_orders, total: all_orders.size }
+    end
   end
 
   # GET /orders/:id
